@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <variant>
 #include <sstream>
 
@@ -17,17 +17,18 @@ struct Variable {
 
 class ScopeManager {
 private:
-    // Stack of scopes, each scope is a map of variable name -> Variable
-    vector<map<string, Variable>> scopes;
+    // Stack of scopes, each scope is an unordered_map of variable name -> Variable
+    vector<unordered_map<string, Variable>> scopes;
 
 public:
     ScopeManager() {
         // Start with global scope
-        scopes.push_back(map<string, Variable>());
+        scopes.push_back(unordered_map<string, Variable>());
+        scopes.reserve(100);  // Pre-allocate for up to 100 scopes
     }
 
     void indent() {
-        scopes.push_back(map<string, Variable>());
+        scopes.push_back(unordered_map<string, Variable>());
     }
 
     void dedent() {
@@ -50,8 +51,9 @@ public:
     Variable* findVariable(const string& name) {
         // Search from current scope backwards to global scope
         for (int i = scopes.size() - 1; i >= 0; i--) {
-            if (scopes[i].find(name) != scopes[i].end()) {
-                return &scopes[i][name];
+            auto it = scopes[i].find(name);
+            if (it != scopes[i].end()) {
+                return &it->second;
             }
         }
         return nullptr;  // Not found
