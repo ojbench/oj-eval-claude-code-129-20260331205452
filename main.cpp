@@ -95,6 +95,8 @@ int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
+    const char* invalid_msg = "Invalid operation\n";
+
     int n;
     cin >> n;
     cin.ignore();  // Ignore newline after n
@@ -121,18 +123,18 @@ int main() {
 
             // Validate variable name
             if (!isValidVariableName(name)) {
-                cout << "Invalid operation\n";
+                cout << invalid_msg;
                 continue;
             }
 
             if (type == "int") {
                 int value;
                 if (!(iss >> value)) {
-                    cout << "Invalid operation\n";
+                    cout << invalid_msg;
                     continue;
                 }
                 if (!manager.declare(type, name, value)) {
-                    cout << "Invalid operation\n";
+                    cout << invalid_msg;
                 }
             }
             else if (type == "string") {
@@ -144,24 +146,24 @@ int main() {
                 if (start != string::npos) {
                     valueStr = restOfLine.substr(start);
                 } else {
-                    cout << "Invalid operation\n";
+                    cout << invalid_msg;
                     continue;
                 }
 
                 // Validate string literal
                 if (!isValidStringLiteral(valueStr)) {
-                    cout << "Invalid operation\n";
+                    cout << invalid_msg;
                     continue;
                 }
 
                 bool valid;
                 string value = parseStringValue(valueStr, valid);
                 if (!valid || !manager.declare(type, name, value)) {
-                    cout << "Invalid operation\n";
+                    cout << invalid_msg;
                 }
             }
             else {
-                cout << "Invalid operation\n";
+                cout << invalid_msg;
             }
         }
         else if (command == "Print") {
@@ -170,7 +172,7 @@ int main() {
 
             Variable* var = manager.findVariable(name);
             if (var == nullptr) {
-                cout << "Invalid operation\n";
+                cout << invalid_msg;
             }
             else {
                 cout << name << ":";
@@ -180,7 +182,7 @@ int main() {
                 else {
                     cout << get<string>(var->value);
                 }
-                cout << "\n";
+                cout << '\n';
             }
         }
         else if (command == "SelfAdd") {
@@ -189,14 +191,14 @@ int main() {
 
             Variable* var = manager.findVariable(name);
             if (var == nullptr) {
-                cout << "Invalid operation\n";
+                cout << invalid_msg;
                 continue;
             }
 
             if (var->type == "int") {
                 int addValue;
                 if (!(iss >> addValue)) {
-                    cout << "Invalid operation\n";
+                    cout << invalid_msg;
                     continue;
                 }
                 var->value = get<int>(var->value) + addValue;
@@ -206,21 +208,21 @@ int main() {
                 getline(iss, restOfLine);
                 size_t start = restOfLine.find_first_not_of(" \t");
                 if (start == string::npos) {
-                    cout << "Invalid operation\n";
+                    cout << invalid_msg;
                     continue;
                 }
                 string valueStr = restOfLine.substr(start);
 
                 // Validate string literal
                 if (!isValidStringLiteral(valueStr)) {
-                    cout << "Invalid operation\n";
+                    cout << invalid_msg;
                     continue;
                 }
 
                 bool valid;
                 string addValue = parseStringValue(valueStr, valid);
                 if (!valid) {
-                    cout << "Invalid operation\n";
+                    cout << invalid_msg;
                     continue;
                 }
                 // Append directly to avoid creating a new string
@@ -236,13 +238,13 @@ int main() {
             Variable* value2Var = manager.findVariable(value2Name);
 
             if (resultVar == nullptr || value1Var == nullptr || value2Var == nullptr) {
-                cout << "Invalid operation\n";
+                cout << invalid_msg;
                 continue;
             }
 
             // Check that all three have the same type
             if (resultVar->type != value1Var->type || resultVar->type != value2Var->type) {
-                cout << "Invalid operation\n";
+                cout << invalid_msg;
                 continue;
             }
 
