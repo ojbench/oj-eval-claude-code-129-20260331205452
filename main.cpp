@@ -76,6 +76,21 @@ bool isValidStringLiteral(const string& s) {
     return s.length() >= 2 && s[0] == '"' && s[s.length()-1] == '"';
 }
 
+// Check if a variable name is valid (C++ identifier rules)
+bool isValidVariableName(const string& name) {
+    if (name.empty()) return false;
+
+    // Must start with letter or underscore
+    if (!isalpha(name[0]) && name[0] != '_') return false;
+
+    // Rest must be alphanumeric or underscore
+    for (size_t i = 1; i < name.length(); i++) {
+        if (!isalnum(name[i]) && name[i] != '_') return false;
+    }
+
+    return true;
+}
+
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
@@ -103,6 +118,12 @@ int main() {
         else if (command == "Declare") {
             string type, name, valueStr;
             iss >> type >> name;
+
+            // Validate variable name
+            if (!isValidVariableName(name)) {
+                cout << "Invalid operation\n";
+                continue;
+            }
 
             if (type == "int") {
                 int value;
@@ -202,7 +223,8 @@ int main() {
                     cout << "Invalid operation\n";
                     continue;
                 }
-                var->value = get<string>(var->value) + addValue;
+                // Append directly to avoid creating a new string
+                get<string>(var->value) += addValue;
             }
         }
         else if (command == "Add") {
@@ -228,7 +250,11 @@ int main() {
                 resultVar->value = get<int>(value1Var->value) + get<int>(value2Var->value);
             }
             else {
-                resultVar->value = get<string>(value1Var->value) + get<string>(value2Var->value);
+                // For strings, use move semantics if possible
+                const string& s1 = get<string>(value1Var->value);
+                const string& s2 = get<string>(value2Var->value);
+                string result = s1 + s2;
+                resultVar->value = move(result);
             }
         }
     }
