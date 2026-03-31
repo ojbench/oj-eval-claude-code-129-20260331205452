@@ -61,11 +61,19 @@ public:
 };
 
 // Parse string value (remove quotes)
-string parseStringValue(const string& s) {
+// Returns empty string and sets valid to false if invalid
+string parseStringValue(const string& s, bool& valid) {
+    valid = false;
     if (s.length() >= 2 && s[0] == '"' && s[s.length()-1] == '"') {
+        valid = true;
         return s.substr(1, s.length() - 2);
     }
-    return s;
+    return "";
+}
+
+// Check if a string is a valid string literal (enclosed in quotes)
+bool isValidStringLiteral(const string& s) {
+    return s.length() >= 2 && s[0] == '"' && s[s.length()-1] == '"';
 }
 
 int main() {
@@ -119,8 +127,15 @@ int main() {
                     continue;
                 }
 
-                string value = parseStringValue(valueStr);
-                if (!manager.declare(type, name, value)) {
+                // Validate string literal
+                if (!isValidStringLiteral(valueStr)) {
+                    cout << "Invalid operation\n";
+                    continue;
+                }
+
+                bool valid;
+                string value = parseStringValue(valueStr, valid);
+                if (!valid || !manager.declare(type, name, value)) {
                     cout << "Invalid operation\n";
                 }
             }
@@ -174,7 +189,19 @@ int main() {
                     continue;
                 }
                 string valueStr = restOfLine.substr(start);
-                string addValue = parseStringValue(valueStr);
+
+                // Validate string literal
+                if (!isValidStringLiteral(valueStr)) {
+                    cout << "Invalid operation\n";
+                    continue;
+                }
+
+                bool valid;
+                string addValue = parseStringValue(valueStr, valid);
+                if (!valid) {
+                    cout << "Invalid operation\n";
+                    continue;
+                }
                 var->value = get<string>(var->value) + addValue;
             }
         }
